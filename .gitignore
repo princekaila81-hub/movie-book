@@ -1,0 +1,14 @@
+# Environment secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies and generated output
+**/node_modules/
+**/build/
+**/coverage/
+
+# Local files and logs
+.DS_Store
+Thumbs.db
+*.log
