@@ -50,10 +50,15 @@ app.use(
 
 
 // ======================================================
-// DATABASE
-// ======================================================
-
-connectDB();
+// Ensure each serverless request has a ready database connection.
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 
 // ======================================================
@@ -123,37 +128,32 @@ app.use((req, res) => {
 
 });
 
+app.use((error, req, res, next) => {
+    console.error("REQUEST ERROR:", error.message);
+    res.status(500).json({
+        success: false,
+        message: "Internal server error"
+    });
+});
+
 
 // ======================================================
 // SERVER
 // ======================================================
 
-const PORT =
-    process.env.PORT || 5000;
+if (process.env.VERCEL !== "1") {
+    const PORT = process.env.PORT || 5000;
 
+    app.listen(PORT, () => {
+        console.log("====================================");
+        console.log("     MovieBook Backend Started");
+        console.log("====================================");
+        console.log(`Server: http://localhost:${PORT}`);
+        console.log(`Users: http://localhost:${PORT}/api/users`);
+        console.log(`Movies: http://localhost:${PORT}/api/movies`);
+        console.log(`Payment: http://localhost:${PORT}/api/payment`);
+        console.log("====================================");
+    });
+}
 
-app.listen(PORT, () => {
-
-    console.log("====================================");
-    console.log("     MovieBook Backend Started");
-    console.log("====================================");
-
-    console.log(
-        `Server: http://localhost:${PORT}`
-    );
-
-    console.log(
-        `Users: http://localhost:${PORT}/api/users`
-    );
-
-    console.log(
-        `Movies: http://localhost:${PORT}/api/movies`
-    );
-
-    console.log(
-        `Payment: http://localhost:${PORT}/api/payment`
-    );
-
-    console.log("====================================");
-
-});
+export default app;
